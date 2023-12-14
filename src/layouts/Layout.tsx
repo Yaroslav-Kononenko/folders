@@ -10,9 +10,9 @@ interface Props {
 export const Layout: React.FC<Props> = ({children}) => {
   return(
     <div className={styles.layout}>
-      <Sidebar />
-      <div className={styles.leftPart}>
-        <Header />
+      <Header />
+      <div className={styles.mainPart}>
+        <Sidebar />
         <div className={styles.content}>
           {children}
         </div>

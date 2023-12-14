@@ -1,20 +1,20 @@
 .layout {
   display: flex;
+  flex-direction: column;
   margin: 0;
   min-height: 100vh;
-  background: #212224;
+  background: #e3e3e3;
   position: relative;
 }
 
-.leftPart {
+.mainPart {
   max-width: 100%;
   position: relative;
   display: flex;
-  flex-direction: column;
   flex: 1;
 }
 
 .content {
-  padding: 32px;
-  background: #212224;
+  padding: 13px 40px;
+  width: 80%;
 }

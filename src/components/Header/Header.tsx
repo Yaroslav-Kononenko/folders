@@ -2,16 +2,17 @@ import styles from "./Header.module.scss";
 import image from "../../assets/header/avatar.png"
 import switcher from "../../assets/header/lang_arrow.svg";
 import notifications from "../../assets/header/notification.svg";
+import logobird from "../../assets/sidebar/logo.svg";
 import React from "react";
 
 export const Header: React.FC = React.memo(() => {
   return(
     <header className={styles.header}>
-      <label htmlFor="searchText">
-        <div className={styles.searchbar}>
-          <input type="text" name="searchText" id="searchText" placeholder="Search" className={styles.searchbar__input} />
+      <div className={styles.logo_container}>
+        <div className={styles.logo}>
+          <img className={styles.logo__img} src={logobird} alt="Logobird" />
         </div>
-      </label>
+      </div>
 
       <div className={styles.userbar}>
         <div className={styles.indicators}>

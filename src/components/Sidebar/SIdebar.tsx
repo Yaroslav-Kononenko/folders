@@ -1,94 +1,82 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Sidebar.module.scss";
-import logobird from "../../assets/sidebar/logo.svg";
-import home from "../../assets/sidebar/home.svg";
-import courses from "../../assets/sidebar/courses.svg";
-import libraries from "../../assets/sidebar/libraries.svg";
-import statistics from "../../assets/sidebar/statistics.svg";
-import guideline from "../../assets/sidebar/users_guideline.svg";
-import logout from "../../assets/sidebar/logout.svg";
+import { Explorer } from "../Explorer";
+import { Tree } from "../../static/dataTypes";
+import data from "../../static/data-v2.json";
+import { observer } from "mobx-react-lite";
+import fileTreeStore from "../../store/store";
 
-type NavItem = {
-  nav_text: string;
-  url: string;
-  logoUrl: string;
+const initialFileTree: Tree = {
+  items: [{
+    name: "",
+    path: "",
+    contentType: "directory"
+  }],
 }
 
-export const Sidebar: React.FC = React.memo(() => {
-  const { nav_item } = styles;
+export interface ItemType {
+  name: string;
+  path: string;
+  contentType: string;
+  items?: ItemType[];
+}
+
+export const Sidebar: React.FC = observer(() => {
+  const [list, setList] = useState<Tree>(initialFileTree);
+  const [searchText, setSearchText] = useState<string>('');
+
+  useEffect(() => {
+    const searchInItems = (searchText: string, items: ItemType[]): ItemType[] => {
+      let results: ItemType[] = [];
+
+      if(searchText.length === 0) {
+        return results;
+      }
+
+      items.forEach((item) => {
+        if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+          results.push(item);
+        }
+
+        if (item.items) {
+          const subResults = searchInItems(searchText, item.items);
+          results = results.concat(subResults);
+        }
+      });
+
+      return results;
+    };
+
+    const timerId = setTimeout(() => {
+      const results = searchInItems(searchText, list.items);
+      fileTreeStore.updateSearchResults(results);
+    }, 500);
+
+    return () => clearTimeout(timerId);
+  }, [searchText, list.items]);
+
+  useEffect(() => {
+    setList(data.payload.fileTree);
+  }, [])
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.logo_container}>
-        <div className={styles.logo}>
-          <img className={styles.logo__img} src={logobird} alt="Logobird" />
+      <label htmlFor="searchText">
+        <div className={styles.searchbar}>
+          <input
+            type="text"
+            name="searchText"
+            id="searchText"
+            placeholder="Search"
+            className={styles.searchbar__input}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
         </div>
-      </div>
+      </label>
 
-      <div className={styles.container}>
-        <div className={styles.nav}>
-          {navList.map((navItem: NavItem) => {
-              return(
-                <a
-                  href={navItem.url}
-                  key={navItem.nav_text} 
-                  className={nav_item}
-                >
-                  <img 
-                    className={`${styles.img}`}
-                    src={navItem.logoUrl}
-                    alt={`${navItem.nav_text}_logo`}
-                  />
-                  <span 
-                    className={`
-                      ${styles.nav_item__text}
-                    `}
-                  >
-                    {navItem.nav_text}
-                  </span> 
-                </a>
-              );
-            })
-          }
-        </div>
-
-        <div className={styles.logout_container}>
-          <div className={`${styles.nav_item} ${styles.logout_button}`}>
-            <img src={logout} className={styles.img} alt="Logout_button" />
-            <span className={styles.nav_item__text}>
-              Sign Out
-            </span>
-          </div>
-        </div>
-      </div>
+      <Explorer data={list} />
     </div>
   );
 });
 
-export const navList: NavItem[] = [
-  {
-    nav_text: "Home",
-    url: "home",
-    logoUrl: home,
-  },
-  {
-    nav_text: "Courses",
-    url: "courses",
-    logoUrl: courses,
-  },
-  {
-    nav_text: "Libraries",
-    url: "libraries",
-    logoUrl: libraries,
-  },
-  {
-    nav_text: "Statistics",
-    url: "statistics",
-    logoUrl: statistics,
-  },
-  {
-    nav_text: "Users guideline",
-    url: "users_guideline",
-    logoUrl: guideline,
-  },
-];
